@@ -17,6 +17,7 @@ struct ContentView: View {
             latitudeDelta: 0.05,
             longitudeDelta: 0.05)
     )
+    
     @StateObject var locationManager = LocationManager()
     @State private var userTrackingMode: MapUserTrackingMode = .follow
     @State private var places = [Place(name: "Barrington High School",
@@ -34,7 +35,25 @@ struct ContentView: View {
             }
                 
             }
+        .onAppear {
+                    findLocation(name: "Springfield")
+                }
     }
+    
+    func findLocation(name: String) {
+        locationManager.geocoder.geocodeAddressString(name) { (placemarks, error) in
+            guard placemarks != nil else {
+                print("Could not locate \(name)")
+                return
+            }
+            for placemark in placemarks! {
+                let place = Place(name: "\(placemark.name!), \(placemark.administrativeArea!)",
+                                  coordinate: placemark.location!.coordinate)
+                places.append(place)
+            }
+        }
+    }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
